@@ -18,7 +18,7 @@ i18n
       },
     },
     fallbackLng: 'ru',
-    debug: process.env.NODE_ENV === 'development',
+    debug: import.meta.env.DEV,
 
     interpolation: {
       escapeValue: false,

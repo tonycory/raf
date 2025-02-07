@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components';
 
-const GlobalStyles = createGlobalStyle`
+export const GlobalStyles = createGlobalStyle`
   /* Reset */
   * {
     margin: 0;
@@ -152,6 +152,4 @@ const GlobalStyles = createGlobalStyle`
       filter: drop-shadow(0 0 5px ${({ theme }) => theme.colors.primary});
     }
   }
-`;
-
-export default GlobalStyles; 
+`; 

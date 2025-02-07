@@ -247,13 +247,13 @@ export const InvestmentCalculator: React.FC = () => {
     updateInfo(amount, value, riskProfile);
   };
 
-  const handleProfileChange = (value: string) => {
-    setRiskProfile(value);
-    updateInfo(amount, period, value);
+  const handleProfileChange = (value: unknown) => {
+    setRiskProfile(value as string);
+    updateInfo(amount, period, value as string);
   };
 
-  const handleMarketConditionChange = (value: string) => {
-    setMarketCondition(value);
+  const handleMarketConditionChange = (value: unknown) => {
+    setMarketCondition(value as string);
     updateInfo(amount, period, riskProfile);
   };
 

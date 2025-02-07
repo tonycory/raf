@@ -6,9 +6,8 @@ import Home from './pages/Home';
 import Market from './components/Market';
 import Profile from './components/Profile';
 import Instruments from './pages/Instruments';
-import GlobalStyles from './styles/GlobalStyles';
+import { GlobalStyles } from './styles/GlobalStyles';
 import { ThemeProvider } from './contexts/ThemeContext';
-import './App.css';
 
 const { Header, Content } = Layout;
 
