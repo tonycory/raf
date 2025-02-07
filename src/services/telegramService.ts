@@ -82,7 +82,7 @@ class TelegramService {
     const endDate = new Date();
     const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
 
-    const messages = analysis[category.toLowerCase() as keyof MarketAnalysis]
+    const messages = (analysis[category.toLowerCase() as keyof MarketAnalysis] as TelegramMessage[])
       .filter(msg => {
         const messageDate = new Date(msg.date * 1000);
         return messageDate >= startDate && messageDate <= endDate;
