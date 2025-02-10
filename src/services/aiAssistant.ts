@@ -8,9 +8,13 @@ interface ChatMessage {
 class AIAssistantService {
   private readonly baseUrl: string;
   private readonly headers: HeadersInit;
+  private readonly useMock: boolean;
+  private readonly mockResponses: Record<string, string>;
 
   constructor() {
     this.baseUrl = API_CONFIG.AI_ASSISTANT.BASE_URL;
+    this.useMock = API_CONFIG.AI_ASSISTANT.USE_MOCK;
+    this.mockResponses = API_CONFIG.AI_ASSISTANT.MOCK_RESPONSES;
     this.headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -18,10 +22,24 @@ class AIAssistantService {
     };
   }
 
+  private getMockResponse(prompt: string): string {
+    if (prompt.toLowerCase().includes('анализ рынка') || prompt.toLowerCase().includes('market analysis')) {
+      return this.mockResponses.market_analysis;
+    }
+    if (prompt.toLowerCase().includes('прогноз') || prompt.toLowerCase().includes('prediction')) {
+      return this.mockResponses.price_prediction;
+    }
+    return this.mockResponses.default;
+  }
+
   async getResponse(prompt: string): Promise<string> {
     try {
       console.log('Sending request to AI Assistant:', { prompt });
       
+      if (this.useMock) {
+        return this.getMockResponse(prompt);
+      }
+
       const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: this.headers,

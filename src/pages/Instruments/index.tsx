@@ -13,7 +13,7 @@ import {
   ThunderboltOutlined
 } from '@ant-design/icons';
 import styled from 'styled-components';
-import PerformanceChart from '../../components/Charts/PerformanceChart';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -24,42 +24,56 @@ const Container = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  border-radius: 16px;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  background: rgba(31, 31, 43, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   margin-bottom: 24px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    border-color: #000000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const ChartContainer = styled.div`
+  width: 100%;
+  height: 400px;
+  margin: 32px 0;
+  padding: 24px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 `;
 
 const IconWrapper = styled.div`
   font-size: 48px;
-  color: #00F2FE;
+  color: #000000;
   margin-bottom: 24px;
-  filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
 `;
 
 const StyledTabs = styled(Tabs)`
   .ant-tabs-nav::before {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
   
   .ant-tabs-tab {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.65);
     
     &:hover {
-      color: #00F2FE;
+      color: #000000;
     }
   }
   
   .ant-tabs-tab-active {
     .ant-tabs-tab-btn {
-      color: #00F2FE !important;
+      color: #000000 !important;
     }
   }
   
   .ant-tabs-ink-bar {
-    background: #00F2FE;
+    background: #000000;
   }
 `;
 
@@ -67,49 +81,49 @@ const StyledSteps = styled(Steps)`
   .ant-steps-item-container {
     .ant-steps-item-content {
       .ant-steps-item-title {
-        color: white !important;
+        color: rgba(0, 0, 0, 0.85) !important;
         font-size: 18px;
         font-weight: 500;
       }
       .ant-steps-item-description {
-        color: rgba(255, 255, 255, 0.8) !important;
+        color: rgba(0, 0, 0, 0.65) !important;
         font-size: 16px;
       }
     }
     .ant-steps-item-icon {
-      background: rgba(0, 242, 254, 0.1);
-      border-color: #00F2FE;
+      background: rgba(0, 0, 0, 0.05);
+      border-color: #000000;
       
       .ant-steps-icon {
-        color: #00F2FE;
+        color: #000000;
       }
     }
     .ant-steps-item-tail::after {
-      background-color: rgba(255, 255, 255, 0.1) !important;
+      background-color: rgba(0, 0, 0, 0.1) !important;
     }
   }
   
   .ant-steps-item-finish {
     .ant-steps-item-icon {
-      background: #00F2FE;
+      background: #000000;
       
       .ant-steps-icon {
-        color: #1F1F2B;
+        color: #FFFFFF;
       }
     }
     .ant-steps-item-tail::after {
-      background-color: #00F2FE !important;
+      background-color: #000000 !important;
     }
   }
 `;
 
 const demoData = [
-  { date: '2023-10-01', value: 4000 },
-  { date: '2023-11-01', value: 4500 },
-  { date: '2023-12-01', value: 5000 },
-  { date: '2024-01-01', value: 5500 },
-  { date: '2024-02-01', value: 6000 },
-  { date: '2024-03-01', value: 6500 }
+  { date: '2023-10', value: 4000 },
+  { date: '2023-11', value: 4500 },
+  { date: '2023-12', value: 5000 },
+  { date: '2024-01', value: 5500 },
+  { date: '2024-02', value: 6000 },
+  { date: '2024-03', value: 6500 }
 ];
 
 const Instruments: React.FC = () => {
@@ -117,114 +131,152 @@ const Instruments: React.FC = () => {
 
   const arbitrageSteps = [
     {
-      title: 'Подключение к биржам',
-      description: 'Система подключается к нескольким криптовалютным биржам через API',
+      title: 'Exchange Connection',
+      description: 'System connects to multiple cryptocurrency exchanges via API',
       icon: <SwapOutlined />
     },
     {
-      title: 'Анализ спредов',
-      description: 'Алгоритм анализирует разницу цен на разных биржах',
+      title: 'Spread Analysis',
+      description: 'Algorithm analyzes price differences across exchanges',
       icon: <LineChartOutlined />
     },
     {
-      title: 'Проверка ликвидности',
-      description: 'Проверяется достаточность объемов для совершения сделок',
+      title: 'Liquidity Check',
+      description: 'Verification of sufficient trading volumes for transactions',
       icon: <SafetyOutlined />
     },
     {
-      title: 'Исполнение сделок',
-      description: 'Автоматическое выполнение арбитражных сделок',
+      title: 'Trade Execution',
+      description: 'Automatic execution of arbitrage trades',
       icon: <CheckCircleOutlined />
     }
   ];
 
   const algorithmicSteps = [
     {
-      title: 'Анализ рынка',
-      description: 'Алгоритмы анализируют текущее состояние рынка и тренды',
+      title: 'Market Analysis',
+      description: 'Algorithms analyze current market state and trends',
       icon: <LineChartOutlined />
     },
     {
-      title: 'Оценка рисков',
-      description: 'Система оценивает потенциальные риски и доходность',
+      title: 'Risk Assessment',
+      description: 'System evaluates potential risks and returns',
       icon: <SafetyOutlined />
     },
     {
-      title: 'Принятие решений',
-      description: 'ИИ принимает решения на основе анализа данных',
+      title: 'Decision Making',
+      description: 'AI makes decisions based on data analysis',
       icon: <RobotOutlined />
     },
     {
-      title: 'Исполнение сделок',
-      description: 'Автоматическое выполнение торговых операций',
+      title: 'Trade Execution',
+      description: 'Automatic execution of trading operations',
       icon: <CheckCircleOutlined />
     }
   ];
 
   const stakingSteps = [
     {
-      title: 'Выбор проекта',
-      description: 'Выбор надежного проекта для стейкинга',
+      title: 'Project Selection',
+      description: 'Choose a reliable project for staking',
       icon: <SafetyOutlined />
     },
     {
-      title: 'Блокировка средств',
-      description: 'Размещение средств в стейкинг-пул',
+      title: 'Fund Locking',
+      description: 'Place funds in staking pool',
       icon: <LockOutlined />
     },
     {
-      title: 'Получение наград',
-      description: 'Регулярное начисление вознаграждений',
+      title: 'Reward Collection',
+      description: 'Regular reward accrual',
       icon: <DollarOutlined />
     },
     {
-      title: 'Реинвестирование',
-      description: 'Автоматическое реинвестирование прибыли',
+      title: 'Reinvestment',
+      description: 'Automatic profit reinvestment',
       icon: <CheckCircleOutlined />
     }
   ];
+
+  const renderChart = (data: typeof demoData, title: string) => (
+    <ChartContainer>
+      <Title level={4} style={{ marginBottom: 24 }}>{title}</Title>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
+          <XAxis 
+            dataKey="date" 
+            stroke="rgba(0, 0, 0, 0.45)"
+            tick={{ fill: 'rgba(0, 0, 0, 0.45)' }}
+          />
+          <YAxis
+            stroke="rgba(0, 0, 0, 0.45)"
+            tick={{ fill: 'rgba(0, 0, 0, 0.45)' }}
+            tickFormatter={(value) => `$${value}`}
+          />
+          <Tooltip
+            contentStyle={{
+              background: '#FFFFFF',
+              border: '1px solid rgba(0, 0, 0, 0.1)',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            }}
+            formatter={(value: number) => [`$${value}`, 'Value']}
+          />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#000000"
+            strokeWidth={2}
+            dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, stroke: '#000000', strokeWidth: 2 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  );
 
   const renderArbitrageStrategy = () => (
     <div>
       <Title level={3}>{t('strategies.arbitrage.title')}</Title>
       <Paragraph>{t('strategies.arbitrage.description')}</Paragraph>
-      <PerformanceChart data={demoData} title="Доходность арбитражной стратегии" />
+      {renderChart(demoData, 'Arbitrage Strategy Returns')}
       <Row gutter={[24, 24]}>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Месячная доходность</Text>}
+              title="Monthly Return"
               value={4}
               suffix="%"
               prefix={<DollarOutlined />}
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Количество бирж</Text>}
+              title="Number of Exchanges"
               value={12}
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Успешных сделок</Text>}
+              title="Successful Trades"
               value={99.8}
               suffix="%"
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
       </Row>
 
       <StyledCard>
-        <Title level={3} style={{ color: 'white', marginBottom: 32 }}>
-          Как это работает
+        <Title level={3} style={{ marginBottom: 32 }}>
+          How it Works
         </Title>
         <StyledSteps
           direction="vertical"
@@ -239,44 +291,44 @@ const Instruments: React.FC = () => {
     <div>
       <Title level={3}>{t('strategies.algorithmic.title')}</Title>
       <Paragraph>{t('strategies.algorithmic.description')}</Paragraph>
-      <PerformanceChart data={demoData} title="Доходность алгоритмической стратегии" />
+      {renderChart(demoData, 'Algorithmic Strategy Returns')}
       <Row gutter={[24, 24]}>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Месячная доходность</Text>}
+              title="Monthly Return"
               value={10}
               suffix="%"
               prefix={<ThunderboltOutlined />}
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Точность прогнозов</Text>}
+              title="Forecast Accuracy"
               value={94.5}
               suffix="%"
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Успешных сделок</Text>}
+              title="Successful Trades"
               value={98.2}
               suffix="%"
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
       </Row>
 
       <StyledCard>
-        <Title level={3} style={{ color: 'white', marginBottom: 32 }}>
-          Как это работает
+        <Title level={3} style={{ marginBottom: 32 }}>
+          How it Works
         </Title>
         <StyledSteps
           direction="vertical"
@@ -291,43 +343,43 @@ const Instruments: React.FC = () => {
     <div>
       <Title level={3}>{t('strategies.staking.title')}</Title>
       <Paragraph>{t('strategies.staking.description')}</Paragraph>
-      <PerformanceChart data={demoData} title="Доходность стейкинга" />
+      {renderChart(demoData, 'Staking Returns')}
       <Row gutter={[24, 24]}>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Годовая доходность</Text>}
+              title="Annual Return"
               value={71.52}
               suffix="%"
               prefix={<BankOutlined />}
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Количество проектов</Text>}
+              title="Number of Projects"
               value={25}
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
         <Col xs={24} md={8}>
           <StyledCard>
             <Statistic
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Минимальный срок</Text>}
+              title="Minimum Term"
               value={30}
-              suffix="дней"
-              valueStyle={{ color: '#00F2FE', fontSize: '36px' }}
+              suffix="days"
+              valueStyle={{ color: '#000000', fontSize: '36px' }}
             />
           </StyledCard>
         </Col>
       </Row>
 
       <StyledCard>
-        <Title level={3} style={{ color: 'white', marginBottom: 32 }}>
-          Как это работает
+        <Title level={3} style={{ marginBottom: 32 }}>
+          How it Works
         </Title>
         <StyledSteps
           direction="vertical"
@@ -382,4 +434,4 @@ const Instruments: React.FC = () => {
   );
 };
 
-export default Instruments; 
+export default Instruments;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Typography, Avatar, Space, Switch, Select, Row, Col, Statistic, Progress } from 'antd';
+import { Typography, Avatar, Space, Switch, Select, Row, Col, Statistic, Progress, Card, Badge, Alert } from 'antd';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   UserOutlined,
   SettingOutlined,
@@ -12,12 +13,13 @@ import {
   ShrinkOutlined,
   DollarOutlined,
   TrophyOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
+  PercentageOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import styled, { keyframes, css } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import PerformanceChart from '../Charts/PerformanceChart';
 
 const { Title, Text } = Typography;
 
@@ -241,6 +243,124 @@ const StatisticCard = styled.div`
   margin-top: 16px;
 `;
 
+const StyledCard = styled(Card)`
+  height: 100%;
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  .ant-card-head {
+    border-bottom: 1px solid #000000;
+    
+    .ant-card-head-title {
+      font-family: var(--font-primary);
+      font-size: ${({ theme }) => theme.typography.h3.fontSize};
+      font-weight: ${({ theme }) => theme.typography.h3.fontWeight};
+      color: #000000;
+    }
+  }
+
+  &:hover {
+    border-color: #000000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const MetricValue = styled.div`
+  font-family: var(--font-primary);
+  font-size: 32px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 4px;
+`;
+
+const MetricChange = styled.div<{ $isPositive?: boolean }>`
+  font-size: ${({ theme }) => theme.typography.body.fontSize};
+  color: ${({ $isPositive }) => $isPositive ? '#00A878' : '#FF4B55'};
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const NotificationItem = styled.div`
+  padding: 16px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+  color: #000000;
+
+  &:hover {
+    border-color: #000000;
+    background: #F8F9FA;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const IconWrapper = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  margin-bottom: 16px;
+  
+  .anticon {
+    font-size: 20px;
+    color: #000000;
+  }
+
+  &:hover {
+    border-color: #000000;
+    background: #F8F9FA;
+  }
+`;
+
+const StyledProgress = styled(Progress)`
+  .ant-progress-inner {
+    background-color: #F8F9FA;
+  }
+
+  .ant-progress-bg {
+    background: #000000;
+  }
+`;
+
+const mockPortfolioData = [
+  { date: '2024-01', value: 10000 },
+  { date: '2024-02', value: 11200 },
+  { date: '2024-03', value: 12500 },
+  { date: '2024-04', value: 13100 },
+  { date: '2024-05', value: 14800 },
+  { date: '2024-06', value: 16000 },
+];
+
+const notifications = [
+  'Monthly return target of 4% achieved',
+  'Portfolio diversification optimized',
+  'New investment opportunity detected',
+];
+
+const ChartContainer = styled.div`
+  width: 100%;
+  height: 400px;
+  margin: 32px 0;
+  padding: 24px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+`;
+
 const Profile: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
@@ -258,197 +378,121 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <ProfileContainer>
-      <ProfileCard 
-        $expanded={isExpanded('profile')}
-        $minimized={isMinimized('profile')}
-        onClick={() => handleCardExpand('profile')}
-      >
-        <ExpandButton $expanded={isExpanded('profile')}>
-          {isExpanded('profile') ? <ShrinkOutlined /> : <ExpandAltOutlined />}
-        </ExpandButton>
-        <Row gutter={[24, 24]} align="middle">
-          <Col>
-            <StyledAvatar icon={<UserOutlined />} />
-          </Col>
-          <Col flex="1">
-            <Title level={3} style={{ margin: 0, color: 'white' }}>John Doe</Title>
-            <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Premium Member</Text>
-          </Col>
-        </Row>
-        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-          <Col span={8}>
-            <StatisticCard>
-              <DollarOutlined style={{ fontSize: 24, color: '#00F2FE' }} />
-              <StatisticValue>$16,420</StatisticValue>
-              <StatisticLabel>Total Balance</StatisticLabel>
-            </StatisticCard>
-          </Col>
-          <Col span={8}>
-            <StatisticCard>
-              <TrophyOutlined style={{ fontSize: 24, color: '#00F2FE' }} />
-              <StatisticValue>15</StatisticValue>
-              <StatisticLabel>Active Investments</StatisticLabel>
-            </StatisticCard>
-          </Col>
-          <Col span={8}>
-            <StatisticCard>
-              <ClockCircleOutlined style={{ fontSize: 24, color: '#00F2FE' }} />
-              <StatisticValue>186</StatisticValue>
-              <StatisticLabel>Days Active</StatisticLabel>
-            </StatisticCard>
-          </Col>
-        </Row>
-        <Progress 
-          percent={75} 
-          status="active" 
-          strokeColor="#00F2FE"
-          trailColor="rgba(255, 255, 255, 0.1)"
-          style={{ marginTop: 24 }}
-        />
-      </ProfileCard>
+    <Space direction="vertical" size="large" style={{ width: '100%', padding: '24px' }}>
+      <Row gutter={[24, 24]}>
+        {/* Current Balance */}
+        <Col xs={24} lg={8}>
+          <StyledCard>
+            <Space direction="vertical" size="large">
+              <IconWrapper>
+                <DollarOutlined />
+              </IconWrapper>
+              <div>
+                <Text style={{ color: '#000000', fontSize: '16px' }}>
+                  Current Balance
+                </Text>
+                <MetricValue>$16,000.00</MetricValue>
+                <MetricChange $isPositive={true}>+$1,200 (7.5%)</MetricChange>
+                <StyledProgress 
+                  percent={75} 
+                  status="active"
+                  strokeWidth={8}
+                  style={{ marginTop: 24 }}
+                />
+              </div>
+            </Space>
+          </StyledCard>
+        </Col>
 
-      <ProfileCard 
-        $delay="0.2s"
-        $expanded={isExpanded('performance')}
-        $minimized={isMinimized('performance')}
-        onClick={() => handleCardExpand('performance')}
-      >
-        <ExpandButton $expanded={isExpanded('performance')}>
-          {isExpanded('performance') ? <ShrinkOutlined /> : <ExpandAltOutlined />}
-        </ExpandButton>
-        <Title level={4} style={{ color: 'white', marginBottom: 24 }}>
-          <RiseOutlined /> {t('profile.performance')}
-        </Title>
-        <ChartWrapper>
-          <PerformanceChart data={performanceData} title="Доходность портфеля" />
-        </ChartWrapper>
-        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-          <Col span={8}>
-            <Statistic 
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Monthly Return</Text>}
-              value={4.2}
-              suffix="%"
-              valueStyle={{ color: '#00F2FE' }}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic 
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Total Return</Text>}
-              value={64.2}
-              suffix="%"
-              valueStyle={{ color: '#00F2FE' }}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic 
-              title={<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Success Rate</Text>}
-              value={98.5}
-              suffix="%"
-              valueStyle={{ color: '#00F2FE' }}
-            />
-          </Col>
-        </Row>
-      </ProfileCard>
+        {/* Portfolio Performance */}
+        <Col xs={24} lg={8}>
+          <StyledCard>
+            <Space direction="vertical" size="large">
+              <IconWrapper>
+                <TrophyOutlined />
+              </IconWrapper>
+              <div>
+                <Text style={{ color: '#000000', fontSize: '16px', fontWeight: 500 }}>
+                  Monthly Return
+                </Text>
+                <MetricValue>4.2%</MetricValue>
+                <Text style={{ color: '#000000', fontSize: '16px', fontWeight: 500, marginTop: 24 }}>
+                  Total Return
+                </Text>
+                <MetricValue>60%</MetricValue>
+              </div>
+            </Space>
+          </StyledCard>
+        </Col>
 
-      <ProfileCard 
-        $delay="0.4s"
-        $expanded={isExpanded('settings')}
-        $minimized={isMinimized('settings')}
-        onClick={() => handleCardExpand('settings')}
-      >
-        <ExpandButton $expanded={isExpanded('settings')}>
-          {isExpanded('settings') ? <ShrinkOutlined /> : <ExpandAltOutlined />}
-        </ExpandButton>
-        <Title level={4} style={{ color: 'white', marginBottom: 24 }}>
-          <SettingOutlined /> {t('profile.settings')}
-        </Title>
-        
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <SettingRow $delay="0.5s" onClick={e => e.stopPropagation()}>
-            <SettingLabel>
-              <BgColorsOutlined />
-              <Text style={{ color: 'white' }}>{t('profile.darkTheme')}</Text>
-            </SettingLabel>
-            <StyledSwitch 
-              checked={theme === 'dark'} 
-              onChange={toggleTheme} 
-            />
-          </SettingRow>
+        {/* Trading Status */}
+        <Col xs={24} lg={8}>
+          <StyledCard>
+            <Space direction="vertical" size="large">
+              <IconWrapper>
+                <SafetyOutlined />
+              </IconWrapper>
+              <div>
+                <Text style={{ color: '#000000', fontSize: '16px', fontWeight: 500, marginBottom: 16 }}>
+                  Status Updates
+                </Text>
+                {notifications.map((notification, index) => (
+                  <NotificationItem key={index}>
+                    {notification}
+                  </NotificationItem>
+                ))}
+              </div>
+            </Space>
+          </StyledCard>
+        </Col>
 
-          <SettingRow $delay="0.6s" onClick={e => e.stopPropagation()}>
-            <SettingLabel>
-              <GlobalOutlined />
-              <Text style={{ color: 'white' }}>{t('profile.language')}</Text>
-            </SettingLabel>
-            <StyledSelect
-              defaultValue={i18n.language}
-              onChange={handleLanguageChange}
-              options={[
-                { value: 'ru', label: 'Русский' },
-                { value: 'en', label: 'English' }
-              ]}
-            />
-          </SettingRow>
-
-          <SettingRow $delay="0.7s" onClick={e => e.stopPropagation()}>
-            <SettingLabel>
-              <BellOutlined />
-              <Text style={{ color: 'white' }}>{t('profile.notifications')}</Text>
-            </SettingLabel>
-            <StyledSwitch defaultChecked />
-          </SettingRow>
-        </Space>
-      </ProfileCard>
-
-      <ProfileCard 
-        $delay="0.6s"
-        $expanded={isExpanded('preferences')}
-        $minimized={isMinimized('preferences')}
-        onClick={() => handleCardExpand('preferences')}
-      >
-        <ExpandButton $expanded={isExpanded('preferences')}>
-          {isExpanded('preferences') ? <ShrinkOutlined /> : <ExpandAltOutlined />}
-        </ExpandButton>
-        <Title level={4} style={{ color: 'white', marginBottom: 24 }}>
-          <SafetyOutlined /> {t('profile.investmentPreferences')}
-        </Title>
-        
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <SettingRow $delay="0.8s" onClick={e => e.stopPropagation()}>
-            <SettingLabel>
-              <RiseOutlined />
-              <Text style={{ color: 'white' }}>{t('profile.riskProfile')}</Text>
-            </SettingLabel>
-            <StyledSelect
-              defaultValue="moderate"
-              style={{ width: 200 }}
-              options={[
-                { value: 'conservative', label: t('calculator.riskProfiles.conservative') },
-                { value: 'moderate', label: t('calculator.riskProfiles.moderate') },
-                { value: 'aggressive', label: t('calculator.riskProfiles.aggressive') }
-              ]}
-            />
-          </SettingRow>
-
-          <SettingRow $delay="0.9s" onClick={e => e.stopPropagation()}>
-            <SettingLabel>
-              <SafetyOutlined />
-              <Text style={{ color: 'white' }}>{t('profile.preferredStrategy')}</Text>
-            </SettingLabel>
-            <StyledSelect
-              defaultValue="algorithmic"
-              style={{ width: 200 }}
-              options={[
-                { value: 'arbitrage', label: t('strategies.arbitrage.title') },
-                { value: 'algorithmic', label: t('strategies.algorithmic.title') },
-                { value: 'staking', label: t('strategies.staking.title') }
-              ]}
-            />
-          </SettingRow>
-        </Space>
-      </ProfileCard>
-    </ProfileContainer>
+        {/* Portfolio Growth Chart */}
+        <Col xs={24}>
+          <StyledCard>
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <IconWrapper>
+                <RiseOutlined />
+              </IconWrapper>
+              <Title level={4} style={{ color: '#000000', marginBottom: 24 }}>Portfolio Growth</Title>
+              <ChartContainer>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={mockPortfolioData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="rgba(0, 0, 0, 0.45)"
+                      tick={{ fill: 'rgba(0, 0, 0, 0.45)' }}
+                    />
+                    <YAxis
+                      stroke="rgba(0, 0, 0, 0.45)"
+                      tick={{ fill: 'rgba(0, 0, 0, 0.45)' }}
+                      tickFormatter={(value) => `$${value}`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: '#FFFFFF',
+                        border: '1px solid rgba(0, 0, 0, 0.1)',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                      }}
+                      formatter={(value: number) => [`$${value}`, 'Value']}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#000000"
+                      strokeWidth={2}
+                      dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: '#000000', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </Space>
+          </StyledCard>
+        </Col>
+      </Row>
+    </Space>
   );
 };
 

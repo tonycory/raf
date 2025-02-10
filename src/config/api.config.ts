@@ -1,8 +1,14 @@
 export const API_CONFIG = {
   AI_ASSISTANT: {
-    BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+    BASE_URL: '/api/ai',
     MODEL: 'gpt-3.5-turbo',
-    API_KEY: import.meta.env.VITE_PROXY_API_KEY || 'your-proxy-api-key'
+    API_KEY: import.meta.env.VITE_PROXY_API_KEY || 'your-proxy-api-key',
+    USE_MOCK: true, // Временно используем моки
+    MOCK_RESPONSES: {
+      default: "На основе анализа рыночных данных рекомендуется: увеличить долю стейкинга на 15% для максимизации доходности в текущих условиях рынка.",
+      market_analysis: "Текущая ситуация на рынке характеризуется повышенной волатильностью. Рекомендуется: 1) Диверсифицировать портфель, 2) Увеличить долю стейблкоинов, 3) Следить за новостями о регулировании.",
+      price_prediction: "На основе технического анализа и рыночных индикаторов, прогноз на ближайшие 24 часа: вероятен боковой тренд с возможным пробитием уровня сопротивления."
+    }
   },
   COINGECKO: {
     // Временно используем моковые данные

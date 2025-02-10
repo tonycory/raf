@@ -1,421 +1,319 @@
 import React, { useState } from 'react';
-import { Card, Input, Select, Button, Typography, Row, Col, Space, Modal } from 'antd';
-import {
-  DollarOutlined,
-  CalendarOutlined,
-  RiseOutlined,
-  BarChartOutlined,
-  CalculatorOutlined,
-  InfoCircleOutlined,
-  CloseOutlined
-} from '@ant-design/icons';
+import { Input, Select, Button, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import rafLogo from '../../assets/images/RAF_logo.svg';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 
 const { Title, Text } = Typography;
 
-const StyledCard = styled(Card)`
+const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  border-radius: 16px;
+  padding: 32px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+`;
+
+const ChartContainer = styled.div`
+  width: 100%;
+  height: 300px;
+  margin: 24px 0 32px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  background: rgba(31, 31, 43, 0.7) !important;
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 24px;
+  margin-bottom: 24px;
 `;
 
-const InputLabel = styled(Text)`
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
+const InputWrapper = styled.div`
+  .ant-typography {
+    margin-bottom: 8px;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+  }
   
-  .anticon {
-    color: ${({ theme }) => theme.colors.primary};
-    font-size: 18px;
+  .ant-input, .ant-select {
+    width: 100%;
+    height: 48px;
+    font-size: 16px;
   }
-`;
-
-const StyledInput = styled(Input)`
-  height: 48px;
-  font-size: 16px;
-  border-radius: 8px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-
-  &:hover, &:focus {
-    border-color: ${({ theme }) => theme.colors.primary} !important;
-    background: rgba(255, 255, 255, 0.15) !important;
-  }
-
+  
   .ant-input {
-    background: transparent !important;
-    color: white !important;
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    
+    &:hover, &:focus {
+      border-color: #000000;
+      box-shadow: none;
+    }
   }
-
-  .ant-input-prefix,
-  .ant-input-suffix {
-    color: rgba(255, 255, 255, 0.5) !important;
-  }
-`;
-
-const StyledSelect = styled(Select)`
+  
   .ant-select-selector {
     height: 48px !important;
     padding: 8px 16px !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
     border-radius: 8px !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
     
     .ant-select-selection-item {
       line-height: 32px !important;
-      font-size: 16px;
-      color: white !important;
     }
-  }
-
-  &:hover .ant-select-selector {
-    border-color: ${({ theme }) => theme.colors.primary} !important;
-    background: rgba(255, 255, 255, 0.15) !important;
+    
+    &:hover {
+      border-color: #000000 !important;
+    }
   }
 `;
 
 const CalculateButton = styled(Button)`
+  width: 100%;
   height: 48px;
+  background: #000000;
+  border: none;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
-  border-radius: 8px;
-  width: 100%;
-  margin-top: 16px;
-  background: ${({ theme }) => theme.colors.primary} !important;
-  border: none !important;
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}40`};
+    background: #000000;
     opacity: 0.9;
   }
-  
-  .anticon {
-    font-size: 20px;
-  }
 `;
 
-const ResultsCard = styled(Card)`
+const ResultsContainer = styled.div`
   margin-top: 24px;
+  padding: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background: rgba(0, 242, 254, 0.1) !important;
-  border: 1px solid rgba(0, 242, 254, 0.2) !important;
+`;
+
+const ResultRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   
-  .ant-card-body {
-    padding: 24px;
-  }
-`;
-
-const ResultValue = styled(Text)`
-  font-size: 32px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.primary} !important;
-  display: block;
-  margin-top: 8px;
-  font-family: var(--font-primary);
-`;
-
-interface CalculatorResult {
-  totalReturn: number;
-  monthlyReturn: number;
-  apr: number;
-}
-
-const StyledModal = styled(Modal)`
-  .ant-modal-content {
-    background: rgba(17, 17, 23, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 242, 254, 0.2);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    width: 90%;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .ant-modal-header {
-    background: transparent;
+  &:last-child {
     border-bottom: none;
+    padding-bottom: 0;
   }
-
-  .ant-modal-body {
-    padding: 24px;
-    color: white;
-    font-size: 16px;
-    line-height: 1.6;
-  }
-
-  .ant-modal-title {
-    color: #00F2FE !important;
-    font-size: 20px;
-    font-weight: 600;
-    font-family: var(--font-primary);
-  }
-
-  .ant-modal-close {
-    color: rgba(255, 255, 255, 0.8);
-    
-    &:hover {
-      color: white;
-    }
+  
+  &:first-child {
+    padding-top: 0;
   }
 `;
 
-const RISK_PROFILES = {
-  conservative: {
-    minAmount: 1000,
-    description: 'Консервативная стратегия подходит для долгосрочных инвестиций с минимальным риском. Рекомендуемый срок от 12 месяцев.'
-  },
-  moderate: {
-    minAmount: 5000,
-    description: 'Умеренная стратегия предполагает средний уровень риска с потенциально высокой доходностью. Рекомендуемый срок от 12 месяцев.'
-  },
-  aggressive: {
-    minAmount: 10000,
-    description: 'Агрессивная стратегия связана с высоким риском и подходит для опытных инвесторов. Рекомендуемый срок от 12 месяцев.'
+const RiskButton = styled(Button)`
+  display: block;
+  margin: 24px auto 0;
+  color: rgba(0, 0, 0, 0.65);
+  padding: 4px 12px;
+  height: auto;
+  
+  &:hover {
+    color: #000000;
   }
-};
-
-const CalcLogoImage = styled.img`
-  height: 160px;
-  width: auto;
-  filter: invert(1);
-  margin-bottom: 24px;
 `;
 
 export const InvestmentCalculator: React.FC = () => {
-  const [amount, setAmount] = useState<number>(10000);
-  const [period, setPeriod] = useState<number>(12);
+  const { t } = useTranslation();
+  const [amount, setAmount] = useState<string>('10000');
+  const [period, setPeriod] = useState<string>('12');
   const [riskProfile, setRiskProfile] = useState<string>('moderate');
   const [marketCondition, setMarketCondition] = useState<string>('normal');
-  const [result, setResult] = useState<CalculatorResult | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState('');
+  const [results, setResults] = useState<{ totalReturn: number; monthlyReturn: number } | null>(null);
+  const [chartData, setChartData] = useState(() => {
+    const baseAmount = 10000;
+    const monthlyReturn = 0.05;
+    return Array.from({ length: 12 }, (_, i) => ({
+      month: i + 1,
+      value: Math.round(baseAmount * Math.pow(1 + monthlyReturn, i))
+    }));
+  });
 
-  const showModal = (content: string) => {
-    setModalContent(content);
-    setModalVisible(true);
-  };
-
-  const updateInfo = (newAmount: number, newPeriod: number, newProfile: string) => {
-    const profile = RISK_PROFILES[newProfile as keyof typeof RISK_PROFILES];
-    let content = '';
-
-    // Показываем базовое описание только если период < 12 или сумма меньше минимальной
-    if (newPeriod < 12 || newAmount < profile.minAmount || (marketCondition === 'bear' && newProfile !== 'conservative')) {
-      content = profile.description;
+  const updateChartData = (currentAmount: number, currentPeriod: number) => {
+    if (isNaN(currentAmount) || isNaN(currentPeriod) || currentAmount <= 0 || currentPeriod <= 0) {
+      return;
     }
 
-    if (newPeriod < 12) {
-      content += '\n\nОбратите внимание: на коротком периоде (менее 12 месяцев) расчет может быть неточным из-за рыночной волатильности. Рекомендуем рассмотреть более длительный период инвестирования для достижения оптимальных результатов.';
-    }
-
-    if (newAmount < profile.minAmount) {
-      content += `\n\nРекомендуемая минимальная сумма для данной стратегии: $${profile.minAmount}. Вы можете инвестировать меньшую сумму, но это может повлиять на эффективность стратегии.`;
-    }
-
-    if (marketCondition === 'bear' && newProfile !== 'conservative') {
-      content += '\n\nВ текущих рыночных условиях (медвежий рынок) рекомендуется рассмотреть более консервативную стратегию для минимизации рисков.';
-    }
-
-    // Показываем модальное окно только если есть контент
-    if (content) {
-      showModal(content);
-    }
+    const monthlyReturn = 0.05;
+    const newData = Array.from({ length: currentPeriod + 1 }, (_, i) => ({
+      month: i,
+      value: Math.round(currentAmount * Math.pow(1 + monthlyReturn, i))
+    }));
+    setChartData(newData);
   };
 
-  const handleAmountChange = (value: number) => {
-    setAmount(value);
-    updateInfo(value, period, riskProfile);
+  const handleAmountChange = (value: string) => {
+    const numValue = value.replace(/[^0-9]/g, '');
+    setAmount(numValue);
+    updateChartData(parseFloat(numValue), parseInt(period));
   };
 
-  const handlePeriodChange = (value: number) => {
-    setPeriod(value);
-    updateInfo(amount, value, riskProfile);
+  const handlePeriodChange = (value: string) => {
+    const numValue = value.replace(/[^0-9]/g, '');
+    setPeriod(numValue);
+    updateChartData(parseFloat(amount), parseInt(numValue));
   };
 
-  const handleProfileChange = (value: unknown) => {
-    setRiskProfile(value as string);
-    updateInfo(amount, period, value as string);
-  };
-
-  const handleMarketConditionChange = (value: unknown) => {
-    setMarketCondition(value as string);
-    updateInfo(amount, period, riskProfile);
-  };
-
-  const calculateReturns = () => {
-    // Базовые годовые ставки для разных профилей риска
-    const baseAnnualRates = {
-      conservative: {
-        bear: 0.04,    // 4% в медвежий рынок
-        normal: 0.06,   // 6% в нормальный рынок
-        bull: 0.08     // 8% в бычий рынок
-      },
-      moderate: {
-        bear: 0.06,    // 6% в медвежий рынок
-        normal: 0.10,   // 10% в нормальный рынок
-        bull: 0.15     // 15% в бычий рынок
-      },
-      aggressive: {
-        bear: 0.08,    // 8% в медвежий рынок
-        normal: 0.15,   // 15% в нормальный рынок
-        bull: 0.25     // 25% в бычий рынок
-      }
-    };
-
-    // Получаем годовую ставку на основе профиля риска и состояния рынка
-    const annualRate = baseAnnualRates[riskProfile as keyof typeof baseAnnualRates][marketCondition as keyof typeof baseAnnualRates.conservative];
-
-    // Расчет месячной ставки
-    const monthlyRate = annualRate / 12;
-
-    // Расчет общего возврата с учетом сложного процента
-    const totalReturn = amount * Math.pow(1 + monthlyRate, period) - amount;
+  const handleCalculate = () => {
+    const amountNum = parseFloat(amount) || 0;
+    const periodNum = parseInt(period) || 0;
     
-    // Расчет среднемесячного возврата
-    const monthlyReturn = totalReturn / period;
+    if (amountNum <= 0 || periodNum <= 0) return;
 
-    // Расчет годовой процентной ставки (APR)
-    const apr = annualRate * 100;
+    let monthlyRate = 0.05; // Base rate 5%
+    
+    // Adjust rate based on risk profile
+    switch (riskProfile) {
+      case 'conservative':
+        monthlyRate *= 0.6;
+        break;
+      case 'aggressive':
+        monthlyRate *= 1.4;
+        break;
+    }
+    
+    // Adjust rate based on market condition
+    switch (marketCondition) {
+      case 'bear':
+        monthlyRate *= 0.7;
+        break;
+      case 'bull':
+        monthlyRate *= 1.3;
+        break;
+    }
 
-    setResult({
+    const totalReturn = amountNum * Math.pow(1 + monthlyRate, periodNum);
+    const monthlyReturn = (totalReturn - amountNum) / periodNum;
+    
+    setResults({
       totalReturn,
-      monthlyReturn,
-      apr
+      monthlyReturn
     });
+    
+    updateChartData(amountNum, periodNum);
   };
 
   return (
-    <StyledCard>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: 32, color: 'white' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-            <CalcLogoImage src={rafLogo} alt="RAF Logo" />
-            Инвестиционный калькулятор
-          </div>
-        </Title>
+    <Container>
+      <Title level={2}>{t('calculator.title')}</Title>
+      
+      <ChartContainer>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
+            <XAxis
+              dataKey="month"
+              tickFormatter={(value) => `${value}m`}
+              stroke="rgba(0, 0, 0, 0.3)"
+            />
+            <YAxis
+              tickFormatter={(value) => `$${value.toLocaleString()}`}
+              stroke="rgba(0, 0, 0, 0.3)"
+            />
+            <Tooltip
+              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Value']}
+              labelFormatter={(label) => `Month ${label}`}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#000000"
+              strokeWidth={2}
+              dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#000000', strokeWidth: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+      
+      <InputGroup>
+        <InputWrapper>
+          <Text>{t('calculator.amount')}</Text>
+          <Input
+            value={amount}
+            onChange={(e) => handleAmountChange(e.target.value)}
+            prefix="$"
+            placeholder="Enter amount"
+          />
+        </InputWrapper>
+        
+        <InputWrapper>
+          <Text>{t('calculator.period')}</Text>
+          <Input
+            value={period}
+            onChange={(e) => handlePeriodChange(e.target.value)}
+            suffix="months"
+            placeholder="Enter period"
+          />
+        </InputWrapper>
+        
+        <InputWrapper>
+          <Text>{t('calculator.riskProfile')}</Text>
+          <Select
+            value={riskProfile}
+            onChange={setRiskProfile}
+            options={[
+              { value: 'conservative', label: t('calculator.riskProfiles.conservative') },
+              { value: 'moderate', label: t('calculator.riskProfiles.moderate') },
+              { value: 'aggressive', label: t('calculator.riskProfiles.aggressive') }
+            ]}
+          />
+        </InputWrapper>
+        
+        <InputWrapper>
+          <Text>{t('calculator.marketCondition')}</Text>
+          <Select
+            value={marketCondition}
+            onChange={setMarketCondition}
+            options={[
+              { value: 'bear', label: t('calculator.marketConditions.bear') },
+              { value: 'normal', label: t('calculator.marketConditions.normal') },
+              { value: 'bull', label: t('calculator.marketConditions.bull') }
+            ]}
+          />
+        </InputWrapper>
+      </InputGroup>
 
-        <Row gutter={[24, 24]}>
-          <Col xs={24} md={12}>
-            <InputGroup>
-              <InputLabel>
-                <DollarOutlined /> Сумма инвестиций ($)
-              </InputLabel>
-              <StyledInput
-                type="number"
-                value={amount}
-                onChange={(e) => handleAmountChange(Number(e.target.value))}
-                min={0}
-                prefix={<DollarOutlined />}
-              />
-            </InputGroup>
-          </Col>
+      <CalculateButton type="primary" onClick={handleCalculate}>
+        {t('calculator.calculate')}
+      </CalculateButton>
 
-          <Col xs={24} md={12}>
-            <InputGroup>
-              <InputLabel>
-                <CalendarOutlined /> Период инвестирования (месяцев)
-              </InputLabel>
-              <StyledInput
-                type="number"
-                value={period}
-                onChange={(e) => handlePeriodChange(Number(e.target.value))}
-                min={1}
-                suffix="мес."
-              />
-            </InputGroup>
-          </Col>
+      {results && (
+        <ResultsContainer>
+          <Title level={4} style={{ margin: '0 0 16px 0' }}>{t('calculator.results')}</Title>
+          <ResultRow>
+            <Text>{t('calculator.totalReturn')}</Text>
+            <Text strong>${results.totalReturn.toFixed(2)}</Text>
+          </ResultRow>
+          <ResultRow>
+            <Text>{t('calculator.monthlyReturn')}</Text>
+            <Text strong>${results.monthlyReturn.toFixed(2)}</Text>
+          </ResultRow>
+        </ResultsContainer>
+      )}
 
-          <Col xs={24} md={12}>
-            <InputGroup>
-              <InputLabel>
-                <RiseOutlined /> Профиль риска
-              </InputLabel>
-              <StyledSelect
-                value={riskProfile}
-                onChange={handleProfileChange}
-                options={[
-                  { value: 'conservative', label: 'Консервативный (4-8% годовых)' },
-                  { value: 'moderate', label: 'Умеренный (6-15% годовых)' },
-                  { value: 'aggressive', label: 'Агрессивный (8-25% годовых)' }
-                ]}
-              />
-            </InputGroup>
-          </Col>
-
-          <Col xs={24} md={12}>
-            <InputGroup>
-              <InputLabel>
-                <BarChartOutlined /> Состояние рынка
-              </InputLabel>
-              <StyledSelect
-                value={marketCondition}
-                onChange={handleMarketConditionChange}
-                options={[
-                  { value: 'bear', label: 'Медвежий рынок (Низкая доходность)' },
-                  { value: 'normal', label: 'Нормальный рынок (Средняя доходность)' },
-                  { value: 'bull', label: 'Бычий рынок (Высокая доходность)' }
-                ]}
-              />
-            </InputGroup>
-          </Col>
-        </Row>
-
-        <CalculateButton 
-          type="primary" 
-          onClick={calculateReturns}
-          icon={<CalculatorOutlined />}
-        >
-          Рассчитать доходность
-        </CalculateButton>
-
-        {result && (
-          <ResultsCard bordered={false}>
-            <Row gutter={[24, 24]}>
-              <Col xs={24} md={8}>
-                <Text style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.8)' }}>Общий доход</Text>
-                <ResultValue>${result.totalReturn.toFixed(2)}</ResultValue>
-              </Col>
-              <Col xs={24} md={8}>
-                <Text style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.8)' }}>Ежемесячный доход</Text>
-                <ResultValue>${result.monthlyReturn.toFixed(2)}</ResultValue>
-              </Col>
-              <Col xs={24} md={8}>
-                <Text style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.8)' }}>Годовая ставка (APR)</Text>
-                <ResultValue>{result.apr.toFixed(1)}%</ResultValue>
-              </Col>
-            </Row>
-          </ResultsCard>
-        )}
-
-        <StyledModal
-          title="Информация для инвестора"
-          open={modalVisible}
-          onCancel={() => setModalVisible(false)}
-          footer={null}
-          centered
-          width={700}
-          closeIcon={<CloseOutlined style={{ fontSize: '18px' }} />}
-        >
-          {modalContent.split('\n\n').map((paragraph, index) => (
-            <p key={index} style={{ marginBottom: '16px' }}>{paragraph}</p>
-          ))}
-        </StyledModal>
-      </Space>
-    </StyledCard>
+      <RiskButton type="link" icon={<InfoCircleOutlined />}>
+        Important Risk Information
+      </RiskButton>
+    </Container>
   );
 }; 

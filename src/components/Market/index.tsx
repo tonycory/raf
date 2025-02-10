@@ -1,101 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, Row, Col, Space, Tag, Button, List, Statistic, Progress, Spin } from 'antd';
+import { Card, Typography, Row, Col, Space, Tag, Button, List, Statistic } from 'antd';
 import { 
   RiseOutlined, 
   FallOutlined, 
   RobotOutlined,
-  ThunderboltOutlined,
   DollarOutlined,
   GlobalOutlined,
-  CheckCircleOutlined,
-  BulbOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined
+  BulbOutlined
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import { coinGecko } from '../../services/coinGecko';
 import { newsService } from '../../services/newsService';
 import { aiAssistant } from '../../services/aiAssistant';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
-const MarketCard = styled(Card)`
-  border-radius: 16px;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  background: rgba(31, 31, 43, 0.7) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
 `;
 
-const TrendTag = styled(Tag)<{ $trend: 'up' | 'down' }>`
-  border-radius: 16px;
-  padding: 4px 12px;
-  font-size: 14px;
-  border: none;
-  background: ${({ $trend }) => 
-    $trend === 'up' ? 'rgba(82, 196, 26, 0.1)' : 'rgba(255, 77, 79, 0.1)'};
-  color: ${({ $trend }) => 
-    $trend === 'up' ? '#52c41a' : '#ff4d4f'};
-`;
-
-const ActionButton = styled(Button)`
+const StyledCard = styled(Card)`
+  background: ${({ theme }) => theme.colors.cardBg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 8px;
-  height: 48px;
-  background: ${({ theme }) => theme.colors.primary}20 !important;
-  border: 1px solid ${({ theme }) => theme.colors.primary} !important;
-  color: ${({ theme }) => theme.colors.primary} !important;
-  font-size: 16px;
-  font-weight: 500;
+  height: 100%;
+  
+  .ant-card-head {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  }
+  
+  opacity: 0;
+  animation: fadeIn 0.6s ease-out forwards;
+  animation-delay: ${({ index }) => index * 0.2}s;
   
   &:hover {
-    background: ${({ theme }) => theme.colors.primary}40 !important;
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
+    transform: translateY(-4px);
+    box-shadow: ${({ theme }) => theme.shadows.card};
   }
 `;
 
-const StyledStatistic = styled(Statistic)`
-  .ant-statistic-title {
-    color: rgba(255, 255, 255, 0.8) !important;
-    font-size: 14px;
-  }
-  .ant-statistic-content {
-    color: white !important;
-    font-size: 24px !important;
-  }
-`;
-
-const ProgressCard = styled(Card)`
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 12px;
-  margin-bottom: 16px;
-`;
-
-const AssetCard = styled.div`
+const AssetItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  margin-bottom: 12px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
+  &:last-child {
+    border-bottom: none;
   }
+  
+  opacity: 0;
+  animation: slideIn 0.6s ease-out forwards;
+  animation-delay: ${({ index }) => index * 0.1}s;
 `;
 
-const NewsItem = styled.div`
-  padding: 12px 16px;
+const TrendTag = styled(Tag)<{ $trend: 'up' | 'down' }>`
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  background: ${({ $trend, theme }) => 
+    $trend === 'up' ? `${theme.colors.success}20` : `${theme.colors.error}20`};
+  color: ${({ $trend, theme }) => 
+    $trend === 'up' ? theme.colors.success : theme.colors.error};
+`;
+
+const IconWrapper = styled.div`
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.backgroundSecondary};
+  margin-right: 16px;
   
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
+  .anticon {
+    font-size: 20px;
+    color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
@@ -105,7 +91,6 @@ interface Asset {
   symbol: string;
   price: number;
   change: number;
-  progress: number;
 }
 
 interface NewsItem {
@@ -118,49 +103,38 @@ const Market: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [aiRecommendation, setAiRecommendation] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Получаем список топ-5 криптовалют
-        const coins = await coinGecko.getCoinsList();
-        const topCoins = ['bitcoin', 'ethereum', 'solana', 'binancecoin', 'cardano'];
+        setLoading(true);
         
-        // Получаем цены для каждой криптовалюты
+        // Get data for top-5 cryptocurrencies
+        const topCoins = ['bitcoin', 'ethereum', 'solana', 'binancecoin', 'cardano'];
         const pricesData = await Promise.all(
           topCoins.map(async (coinId) => {
             const priceData = await coinGecko.getPrice(coinId);
             return {
               id: coinId,
+              name: coinId.charAt(0).toUpperCase() + coinId.slice(1),
+              symbol: coinId.substring(0, 3).toUpperCase(),
               price: priceData[coinId].usd,
               change: priceData[coinId].usd_24h_change || 0
             };
           })
         );
-
-        // Форматируем данные
-        const formattedAssets = pricesData.map((data, index) => ({
-          id: data.id,
-          name: coins.find(coin => coin.id === data.id)?.symbol.toUpperCase() || '',
-          symbol: coins.find(coin => coin.id === data.id)?.symbol.toUpperCase() || '',
-          price: data.price,
-          change: data.change,
-          progress: 85 - (index * 5) // Просто для визуализации
-        }));
-
-        setAssets(formattedAssets);
-
-        // Получаем последние новости
-        const newsData = await newsService.getLatestNews(undefined, 5);
+        
+        setAssets(pricesData);
+        
+        // Get latest news
+        const newsData = await newsService.getLatestNews();
         setNews(newsData);
-
-        // Получаем AI анализ
-        const analysis = await aiAssistant.analyzeMarketNews(
-          newsData.map(item => item.title)
-        );
-        setAiAnalysis(analysis);
-
+        
+        // Get AI recommendations
+        const analysis = await aiAssistant.getMarketStrategy(pricesData);
+        setAiRecommendation(analysis);
+        
       } catch (error) {
         console.error('Error fetching market data:', error);
       } finally {
@@ -169,120 +143,108 @@ const Market: React.FC = () => {
     };
 
     fetchData();
-    
-    // Обновляем данные каждые 5 минут
-    const interval = setInterval(fetchData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
-
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%', padding: '24px' }}>
+    <Container>
       <Row gutter={[24, 24]}>
-        {/* Market Metrics */}
-        <Col xs={24}>
-          <MarketCard>
-            <Row gutter={[24, 24]}>
-              <Col xs={24} md={8}>
-                <StyledStatistic
-                  title="Общая капитализация"
-                  value={assets.reduce((acc, asset) => acc + asset.price, 0).toFixed(2)}
-                  prefix="$"
-                  suffix={
-                    <Space>
-                      <ArrowUpOutlined style={{ color: '#52c41a' }} />
-                      <span style={{ color: '#52c41a' }}>
-                        {(assets.reduce((acc, asset) => acc + asset.change, 0) / assets.length).toFixed(2)}%
-                      </span>
-                    </Space>
-                  }
-                />
-              </Col>
-            </Row>
-          </MarketCard>
+        {/* Market Overview */}
+        <Col xs={24} lg={16}>
+          <StyledCard 
+            title={
+              <Space>
+                <GlobalOutlined />
+                Market Overview
+              </Space>
+            }
+            loading={loading}
+            index={0}
+            className="scale-in"
+          >
+            <List
+              dataSource={assets}
+              renderItem={(asset, index) => (
+                <AssetItem index={index}>
+                  <Space>
+                    <IconWrapper>
+                      <DollarOutlined />
+                    </IconWrapper>
+                    <div>
+                      <Text strong>{asset.name}</Text>
+                      <div>
+                        <Text type="secondary">{asset.symbol}</Text>
+                      </div>
+                    </div>
+                  </Space>
+                  <Space>
+                    <Statistic 
+                      value={asset.price} 
+                      precision={2} 
+                      prefix="$"
+                      valueStyle={{ fontSize: '16px' }}
+                    />
+                    <TrendTag $trend={asset.change >= 0 ? 'up' : 'down'}>
+                      {asset.change >= 0 ? <RiseOutlined /> : <FallOutlined />}
+                      {Math.abs(asset.change).toFixed(2)}%
+                    </TrendTag>
+                  </Space>
+                </AssetItem>
+              )}
+            />
+          </StyledCard>
         </Col>
 
-        {/* AI Analytics */}
-        <Col xs={24}>
-          <MarketCard>
-            <Row gutter={[24, 24]}>
-              <Col xs={24} md={8}>
-                <Title level={4} style={{ color: 'white', marginBottom: 24 }}>
-                  <RobotOutlined /> AI Анализ
-                </Title>
-                <Paragraph style={{ color: 'white', fontSize: '16px' }}>
-                  {aiAnalysis}
-                </Paragraph>
-              </Col>
-            </Row>
-          </MarketCard>
+        {/* AI Recommendations */}
+        <Col xs={24} lg={8}>
+          <StyledCard
+            title={
+              <Space>
+                <RobotOutlined />
+                AI Analysis
+              </Space>
+            }
+            loading={loading}
+            index={1}
+            className="scale-in"
+          >
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <Text>{aiRecommendation}</Text>
+              <Button 
+                type="primary" 
+                icon={<BulbOutlined />}
+                block
+              >
+                Get Detailed Analysis
+              </Button>
+            </Space>
+          </StyledCard>
         </Col>
 
-        {/* Top Assets and News */}
+        {/* Market News */}
         <Col xs={24}>
-          <Row gutter={[24, 24]}>
-            <Col xs={24} lg={12}>
-              <MarketCard>
-                <Title level={4} style={{ color: 'white', marginBottom: 24 }}>
-                  <RiseOutlined /> Топ-5 активов
-                </Title>
-                {assets.map((asset) => (
-                  <AssetCard key={asset.id}>
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <Space>
-                          <div style={{ width: 40, height: 40, background: 'rgba(255, 255, 255, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {asset.symbol}
-                          </div>
-                          <div>
-                            <Text strong style={{ color: 'white', display: 'block' }}>{asset.name}</Text>
-                            <Text style={{ color: 'rgba(255, 255, 255, 0.5)' }}>${asset.price.toFixed(2)}</Text>
-                          </div>
-                        </Space>
-                        <TrendTag $trend={asset.change >= 0 ? 'up' : 'down'}>
-                          {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)}%
-                        </TrendTag>
-                      </Space>
-                      <Progress 
-                        percent={asset.progress} 
-                        size="small" 
-                        strokeColor="#00F2FE"
-                        trailColor="rgba(255, 255, 255, 0.1)"
-                        showInfo={false}
-                      />
-                    </Space>
-                  </AssetCard>
-                ))}
-              </MarketCard>
-            </Col>
-
-            <Col xs={24} lg={12}>
-              <MarketCard>
-                <Title level={4} style={{ color: 'white', marginBottom: 24 }}>
-                  <GlobalOutlined /> Новости рынка
-                </Title>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  {news.map((item) => (
-                    <NewsItem key={item.id}>
-                      <a href={item.url} target="_blank" rel="noopener noreferrer">
-                        <Text style={{ color: 'white' }}>{item.title}</Text>
-                      </a>
-                    </NewsItem>
-                  ))}
-                </Space>
-              </MarketCard>
-            </Col>
-          </Row>
+          <StyledCard
+            title={
+              <Space>
+                <GlobalOutlined />
+                Latest News
+              </Space>
+            }
+            loading={loading}
+          >
+            <List
+              dataSource={news}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>}
+                  />
+                </List.Item>
+              )}
+            />
+          </StyledCard>
         </Col>
       </Row>
-    </Space>
+    </Container>
   );
 };
 

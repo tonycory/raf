@@ -1,122 +1,90 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Row, Col, Button, Space } from 'antd';
+import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   HomeOutlined,
   ToolOutlined,
-  RobotOutlined,
-  TeamOutlined,
+  ShopOutlined,
   UserOutlined,
-  SunOutlined,
-  MoonOutlined,
+  MoreOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { useTheme } from '../../contexts/ThemeContext';
-import rafLogo from '../../assets/images/RAF_logo.svg';
 
-const NavContainer = styled(Row)`
-  height: 96px;
-  padding: 0 48px;
-  backdrop-filter: blur(10px);
-  background: ${({ theme }) => theme.colors.navBg};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+const NavContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #FFFFFF;
+  z-index: 1000;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
-const LogoImage = styled.img`
-  height: 96px;
-  width: auto;
-  margin-right: 24px;
-  filter: invert(1);
+const Logo = styled.div`
+  font-size: 24px;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.3s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
+  flex: 0 0 96px;
+  color: #000000;
 `;
 
 const StyledMenu = styled(Menu)`
   &.ant-menu {
+    flex: 1;
+    display: flex;
+    justify-content: center;
     background: transparent;
     border: none;
-    font-family: var(--font-primary);
     font-size: 16px;
     font-weight: 500;
     
     .ant-menu-item {
+      height: 64px;
+      line-height: 64px;
       padding: 0 24px;
-      margin: 0 4px;
-      color: ${({ theme }) => theme.colors.textSecondary};
+      margin: 0;
       
       &:hover {
-        color: ${({ theme }) => theme.colors.text} !important;
-        
-        .anticon {
-          animation: glow 1.5s ease-in-out infinite;
-        }
+        color: #000000 !important;
+        background: transparent;
       }
       
       &.ant-menu-item-selected {
-        color: ${({ theme }) => theme.colors.primary} !important;
-        background: transparent;
+        font-weight: 600;
+        color: #000000;
         
         &::after {
-          border-bottom: 2px solid ${({ theme }) => theme.colors.primary};
-        }
-        
-        .anticon {
-          color: ${({ theme }) => theme.colors.primary};
-          filter: drop-shadow(0 0 8px ${({ theme }) => theme.colors.primary});
+          border-bottom: 2px solid #000000;
         }
       }
       
       .anticon {
-        font-size: 18px;
         margin-right: 8px;
-        transition: all 0.3s ease;
       }
     }
   }
 `;
 
-const ActionButton = styled(Button)`
-  &.ant-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: ${({ theme }) => theme.colors.cardBg};
-    border: 1px solid ${({ theme }) => theme.colors.border};
-    
-    .anticon {
-      font-size: 20px;
-      color: ${({ theme }) => theme.colors.textSecondary};
-    }
-    
-    &:hover {
-      background: ${({ theme }) => theme.colors.cardBgHover};
-      border-color: ${({ theme }) => theme.colors.primary};
-      
-      .anticon {
-        color: ${({ theme }) => theme.colors.primary};
-        animation: glow 1.5s ease-in-out infinite;
-      }
-    }
-    
-    &.active {
-      background: ${({ theme }) => `${theme.colors.primary}1A`};
-      border-color: ${({ theme }) => theme.colors.primary};
-      
-      .anticon {
-        color: ${({ theme }) => theme.colors.primary};
-      }
-    }
+const MoreButton = styled.div`
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 96px;
+  padding: 0;
+  
+  .anticon {
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.85);
   }
 `;
 
@@ -124,7 +92,6 @@ const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { theme, toggleTheme } = useTheme();
 
   const menuItems: MenuProps['items'] = [
     {
@@ -139,8 +106,13 @@ const Navigation: React.FC = () => {
     },
     {
       key: '/market-ai',
-      icon: <RobotOutlined />,
+      icon: <ShopOutlined />,
       label: t('navigation.marketAI')
+    },
+    {
+      key: '/profile',
+      icon: <UserOutlined />,
+      label: t('navigation.profile')
     }
   ];
 
@@ -149,31 +121,17 @@ const Navigation: React.FC = () => {
   };
 
   return (
-    <NavContainer justify="space-between" align="middle">
-      <Col flex="auto" style={{ display: 'flex', alignItems: 'center' }}>
-        <LogoImage src={rafLogo} alt="RAF Logo" onClick={() => navigate('/')} />
-        <StyledMenu
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={handleMenuClick}
-        />
-      </Col>
-      <Col>
-        <Space size={16}>
-          <ActionButton
-            type="text"
-            icon={theme === 'light' ? <MoonOutlined /> : <SunOutlined />}
-            onClick={toggleTheme}
-          />
-          <ActionButton 
-            type="text" 
-            icon={<UserOutlined />} 
-            onClick={() => navigate('/profile')}
-            className={location.pathname === '/profile' ? 'active' : ''}
-          />
-        </Space>
-      </Col>
+    <NavContainer>
+      <Logo onClick={() => navigate('/')}>RAF.</Logo>
+      <StyledMenu
+        mode="horizontal"
+        selectedKeys={[location.pathname]}
+        items={menuItems}
+        onClick={handleMenuClick}
+      />
+      <MoreButton>
+        <MoreOutlined />
+      </MoreButton>
     </NavContainer>
   );
 };

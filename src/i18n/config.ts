@@ -17,12 +17,35 @@ i18n
         translation: ruTranslations,
       },
     },
-    fallbackLng: 'ru',
+    fallbackLng: ['ru'],
+    supportedLngs: ['en', 'ru'],
+    defaultNS: ['translation'],
+    ns: ['translation'],
     debug: import.meta.env.DEV,
-
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
+    },
     interpolation: {
       escapeValue: false,
     },
+    react: {
+      useSuspense: true,
+    },
+    returnNull: false,
+    returnEmptyString: false,
+    returnObjects: false,
+    saveMissing: false,
+    saveMissingTo: 'fallback',
+    missingKeyHandler: false,
+    appendNamespaceToMissingKey: false,
+    parseMissingKeyHandler: false,
+    appendNamespaceToCIMode: false,
+    simplifyPluralSuffix: true,
+    postProcess: false,
+    postProcessPassResolved: false,
+    load: 'currentOnly',
+    preload: ['ru', 'en'],
   });
 
 export default i18n; 
