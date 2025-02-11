@@ -4,6 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { ConfigProvider } from 'antd'
 import './i18n/config'
+import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         },
       }}
     >
-      <App />
+      <BrowserRouter basename="/raf">
+        <App />
+      </BrowserRouter>
     </ConfigProvider>
   </React.StrictMode>,
 )
