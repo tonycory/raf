@@ -1,0 +1,149 @@
+{
+  "navigation": {
+    "home": "Home",
+    "instruments": "Instruments",
+    "marketAI": "Market AI Analytics",
+    "team": "Team & Portfolio",
+    "profile": "Profile"
+  },
+  "home": {
+    "title": "Cryptocurrency Fund with Diversified Investment Strategies",
+    "description": "Up to 10% monthly returns with proven algorithms and multi-exchange trading. Passive income up to 71% APR through staking — your capital works for you."
+  },
+  "strategies": {
+    "arbitrage": {
+      "title": "Arbitrage Strategy with Multi-Exchange Connectors",
+      "description": "Our arbitrage system uses multi-exchange connectors, allowing simultaneous trading on multiple cryptocurrency exchanges with a total transaction volume of up to $25 million. This provides a stable income of up to 4% per month through precise price synchronization between platforms.",
+      "advantages": {
+        "title": "Advantages",
+        "profitability": {
+          "title": "Profitability",
+          "value": "Up to 4% monthly"
+        },
+        "trading": {
+          "title": "Automated Trading",
+          "value": "Through multi-exchange connectors"
+        },
+        "transparency": {
+          "title": "Operation Transparency",
+          "value": "Providing full reports on all trades"
+        }
+      }
+    },
+    "algorithmic": {
+      "title": "Algorithmic Trading with Proven Results",
+      "description": "Our algorithmic trading system applies proven algorithms that provide stable results in various market conditions. Your investments are under reliable protection, ensuring a balance between returns and risks.",
+      "advantages": {
+        "title": "Advantages",
+        "profitability": {
+          "title": "Profitability",
+          "value": "Up to 10% monthly"
+        },
+        "reliability": {
+          "title": "Reliable Algorithms",
+          "value": "Early earnings stability"
+        },
+        "riskManagement": {
+          "title": "Risk Optimization",
+          "value": "Based on data analysis"
+        },
+        "automation": {
+          "title": "Process Automation",
+          "value": "Maximum trading efficiency"
+        }
+      }
+    },
+    "staking": {
+      "title": "Staking",
+      "description": "We launch nodes based on carefully selected blockchain projects, which allows for stable passive income. Cryptocurrency storage becomes not only a secure but also a profitable solution.",
+      "profitability": {
+        "title": "Profitability",
+        "date": "Yield snapshot from 24.12.24",
+        "projects": {
+          "pion": {
+            "name": "PION",
+            "apr": "44% APR"
+          },
+          "grav": {
+            "name": "GRAV",
+            "apr": "12.55% APR"
+          },
+          "carv": {
+            "name": "CARV",
+            "apr": "71.52% APR"
+          },
+          "zetachain": {
+            "name": "ZETACHAIN",
+            "apr": "5.5% APR"
+          }
+        }
+      },
+      "advantages": {
+        "title": "Advantages",
+        "passive": {
+          "title": "Passive Income from Staking and Validation",
+          "value": "Stable income without active participation"
+        },
+        "storage": {
+          "title": "Secure Cryptocurrency Storage",
+          "value": "Security of your assets"
+        },
+        "automation": {
+          "title": "Complete Process Automation",
+          "value": "Automatic node management"
+        }
+      }
+    }
+  },
+  "calculator": {
+    "title": "Investment Calculator",
+    "amount": "Investment Amount ($)",
+    "period": "Investment Period (months)",
+    "riskProfile": "Risk Profile",
+    "marketCondition": "Market Condition",
+    "calculate": "Calculate Returns",
+    "results": "Results",
+    "totalReturn": "Total Return",
+    "monthlyReturn": "Monthly Return",
+    "riskProfiles": {
+      "conservative": "Conservative",
+      "moderate": "Moderate",
+      "aggressive": "Aggressive"
+    },
+    "marketConditions": {
+      "bear": "Bear Market",
+      "normal": "Normal Market",
+      "bull": "Bull Market"
+    }
+  },
+  "markets": {
+    "title": "Market Analysis",
+    "disclaimer": "This information is for reference only and should not be considered as financial advice.",
+    "columns": {
+      "market": "Market",
+      "condition": "Condition",
+      "volatility": "Volatility",
+      "recommendation": "Recommendation"
+    },
+    "volatility": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "recommendations": {
+      "buy": "Buy",
+      "hold": "Hold",
+      "sell": "Sell"
+    }
+  },
+  "profile": {
+    "title": "User Profile",
+    "memberStatus": "Premium Member",
+    "userInfo": "User Information",
+    "investmentPreferences": "Investment Preferences",
+    "buttons": {
+      "accountSettings": "Account Settings",
+      "notifications": "Notification Settings"
+    }
+  }
+} 
