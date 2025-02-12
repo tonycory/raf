@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu } from 'antd';
+import { Menu, Drawer, Button } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   HomeOutlined,
   ToolOutlined,
   ShopOutlined,
   UserOutlined,
-  MoreOutlined
+  MenuOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
@@ -31,7 +31,6 @@ const Logo = styled.div`
   font-size: 24px;
   font-weight: 700;
   cursor: pointer;
-  flex: 0 0 96px;
   color: #000000;
 `;
 
@@ -42,53 +41,33 @@ const StyledMenu = styled(Menu)`
     justify-content: center;
     background: transparent;
     border: none;
-    font-size: 16px;
-    font-weight: 500;
     
-    .ant-menu-item {
-      height: 64px;
-      line-height: 64px;
-      padding: 0 24px;
-      margin: 0;
-      
-      &:hover {
-        color: #000000 !important;
-        background: transparent;
-      }
-      
-      &.ant-menu-item-selected {
-        font-weight: 600;
-        color: #000000;
-        
-        &::after {
-          border-bottom: 2px solid #000000;
-        }
-      }
-      
-      .anticon {
-        margin-right: 8px;
-      }
+    @media (max-width: 768px) {
+      display: none;
     }
   }
 `;
 
-const MoreButton = styled.div`
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex: 0 0 96px;
-  padding: 0;
+const MobileMenuButton = styled(Button)`
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const StyledDrawer = styled(Drawer)`
+  .ant-drawer-body {
+    padding: 0;
+  }
   
-  .anticon {
-    font-size: 24px;
-    color: rgba(0, 0, 0, 0.85);
+  .ant-menu-item {
+    height: 50px;
+    line-height: 50px;
   }
 `;
 
 const Navigation: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -116,22 +95,44 @@ const Navigation: React.FC = () => {
     }
   ];
 
-  const handleMenuClick: MenuProps['onClick'] = (e) => {
-    navigate(e.key);
+  const handleMenuClick = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
   };
 
   return (
     <NavContainer>
       <Logo onClick={() => navigate('/')}>RAF.</Logo>
+      
+      {/* Desktop Menu */}
       <StyledMenu
         mode="horizontal"
         selectedKeys={[location.pathname]}
         items={menuItems}
-        onClick={handleMenuClick}
+        onClick={({ key }) => handleMenuClick(key)}
       />
-      <MoreButton>
-        <MoreOutlined />
-      </MoreButton>
+      
+      {/* Mobile Menu Button */}
+      <MobileMenuButton
+        type="text"
+        icon={<MenuOutlined />}
+        onClick={() => setMobileMenuOpen(true)}
+      />
+      
+      {/* Mobile Menu Drawer */}
+      <StyledDrawer
+        placement="right"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        width={250}
+      >
+        <Menu
+          mode="vertical"
+          selectedKeys={[location.pathname]}
+          items={menuItems}
+          onClick={({ key }) => handleMenuClick(key)}
+        />
+      </StyledDrawer>
     </NavContainer>
   );
 };

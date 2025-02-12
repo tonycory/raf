@@ -99,6 +99,14 @@ interface NewsItem {
   url: string;
 }
 
+const cryptoConfig = [
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC' },
+  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH' },
+  { id: 'solana', name: 'Solana', symbol: 'SOL' },
+  { id: 'binancecoin', name: 'BNB', symbol: 'BNB' },
+  { id: 'cardano', name: 'Cardano', symbol: 'ADA' }
+];
+
 const Market: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -110,17 +118,15 @@ const Market: React.FC = () => {
       try {
         setLoading(true);
         
-        // Get data for top-5 cryptocurrencies
-        const topCoins = ['bitcoin', 'ethereum', 'solana', 'binancecoin', 'cardano'];
         const pricesData = await Promise.all(
-          topCoins.map(async (coinId) => {
-            const priceData = await coinGecko.getPrice(coinId);
+          cryptoConfig.map(async (coin) => {
+            const priceData = await coinGecko.getPrice(coin.id);
             return {
-              id: coinId,
-              name: coinId.charAt(0).toUpperCase() + coinId.slice(1),
-              symbol: coinId.substring(0, 3).toUpperCase(),
-              price: priceData[coinId].usd,
-              change: priceData[coinId].usd_24h_change || 0
+              id: coin.id,
+              name: coin.name,
+              symbol: coin.symbol,
+              price: priceData[coin.id].usd,
+              change: priceData[coin.id].usd_24h_change || 0
             };
           })
         );

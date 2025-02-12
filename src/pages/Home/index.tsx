@@ -19,30 +19,36 @@ const Container = styled.div`
   padding: 48px 24px;
 `;
 
-const MainTitle = styled(Title)`
-  &.ant-typography {
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 64px;
-    line-height: 1.1;
-    color: ${({ theme }) => theme.colors.text};
-    margin-bottom: 24px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    opacity: 0;
-    animation: slideIn 0.6s ease-out forwards;
+const MainTitle = styled.h1`
+  font-size: 4.5rem;
+  line-height: 1.1;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    
+    // Убираем форсированный перенос каждого слова
+    word-spacing: normal;
+    max-width: 100%;
+    padding-right: 1rem;
+    white-space: pre-line; // Сохраняем переносы строк, но объединяем пробелы
   }
 `;
 
-const Description = styled(Text)`
-  font-size: 20px;
-  line-height: 1.5;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  display: block;
-  margin-bottom: 64px;
-  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
-  opacity: 0;
-  animation: fadeIn 0.6s ease-out forwards;
-  animation-delay: 0.2s;
+const Description = styled.p`
+  font-size: 1.5rem;
+  line-height: 1.4;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    padding-right: 1rem;
+  }
 `;
 
 const StrategyCard = styled(Card)`
@@ -126,7 +132,15 @@ const Home: React.FC = () => {
 
   return (
     <Container>
-      <MainTitle level={1}>{t('home.title')}</MainTitle>
+      <MainTitle>
+        {t('home.title', {
+          // Заменяем обычные пробелы на неразрывные там, где нужно
+          replace: {
+            'Fund with': 'Fund\u00A0with',
+            'Investment Strategies': 'Investment\u00A0Strategies'
+          }
+        })}
+      </MainTitle>
       <Description>{t('home.description')}</Description>
 
       <Row gutter={[32, 32]}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
@@ -30,20 +30,18 @@ const StyledContent = styled(Content)`
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <HashRouter>
-        <GlobalStyles />
-        <StyledLayout>
-          <Navigation />
-          <StyledContent>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/market-ai" element={<Market />} />
-              <Route path="/instruments" element={<Instruments />} />
-              <Route path="/profile" element={<Profile />} />
-            </Routes>
-          </StyledContent>
-        </StyledLayout>
-      </HashRouter>
+      <GlobalStyles />
+      <StyledLayout>
+        <Navigation />
+        <StyledContent>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/market-ai" element={<Market />} />
+            <Route path="/instruments" element={<Instruments />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </StyledContent>
+      </StyledLayout>
     </ThemeProvider>
   );
 };

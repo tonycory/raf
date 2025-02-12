@@ -20,20 +20,89 @@ export const GlobalStyles = createGlobalStyle`
   /* Base Styles */
   body {
     background-color: #FFFFFF;
+    overflow-x: hidden;
+    position: relative;
     background-image: 
-      radial-gradient(circle at center, 
+      radial-gradient(
+        circle at center,
         rgba(0, 0, 0, 0.01) 0%,
         rgba(0, 0, 0, 0.03) 100%
       ),
-      linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-    background-size: 100% 100%, 24px 24px, 24px 24px;
-    background-position: center center;
+      linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 
+      100% 100%,
+      60px 60px,
+      60px 60px,
+      30px 30px,
+      30px 30px;
+    background-position: 
+      center center,
+      center center,
+      center center,
+      15px 15px,
+      15px 15px;
     color: ${({ theme }) => theme.colors.text};
     min-height: 100vh;
   }
 
+  /* Фиксированная крупная сетка */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0.01) 0%,
+        rgba(0, 0, 0, 0.03) 100%
+      ),
+      linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    background-size: 
+      100% 100%,
+      60px 60px,
+      60px 60px;
+    background-position: center center;
+    pointer-events: none;
+    z-index: -2;
+  }
+
+  /* Движущаяся мелкая сетка */
+  body::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: 15px 15px;
+    pointer-events: none;
+    z-index: -1;
+    animation: moveGrid 20s linear infinite;
+  }
+
+  @keyframes moveGrid {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(30px, 30px);
+    }
+  }
+
   #root {
+    position: relative;
+    z-index: 1;
     min-height: 100vh;
   }
 
@@ -48,6 +117,13 @@ export const GlobalStyles = createGlobalStyle`
   .ant-card {
     background: ${({ theme }) => theme.colors.cardBg};
     border: 1px solid ${({ theme }) => theme.colors.border};
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+      border-color: ${({ theme }) => theme.colors.primary}40;
+    }
   }
 
   .ant-typography {
@@ -65,28 +141,40 @@ export const GlobalStyles = createGlobalStyle`
   /* Typography */
   h1, .h1 {
     font-family: var(--font-primary);
-    font-size: ${({ theme }) => theme.typography.h1.fontSize};
-    font-weight: ${({ theme }) => theme.typography.h1.fontWeight};
-    line-height: ${({ theme }) => theme.typography.h1.lineHeight};
-    letter-spacing: ${({ theme }) => theme.typography.h1.letterSpacing};
+    font-size: 5rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
     margin-bottom: 0.5em;
+
+    @media (max-width: 768px) {
+      font-size: 3rem;
+    }
   }
 
   h2, .h2 {
     font-family: var(--font-primary);
-    font-size: ${({ theme }) => theme.typography.h2.fontSize};
-    font-weight: ${({ theme }) => theme.typography.h2.fontWeight};
-    line-height: ${({ theme }) => theme.typography.h2.lineHeight};
-    letter-spacing: ${({ theme }) => theme.typography.h2.letterSpacing};
+    font-size: 3rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
     margin-bottom: 0.5em;
+
+    @media (max-width: 768px) {
+      font-size: 2.25rem;
+    }
   }
 
   h3, .h3 {
     font-family: var(--font-primary);
-    font-size: ${({ theme }) => theme.typography.h3.fontSize};
-    font-weight: ${({ theme }) => theme.typography.h3.fontWeight};
-    line-height: ${({ theme }) => theme.typography.h3.lineHeight};
+    font-size: 2.25rem;
+    font-weight: 500;
+    line-height: 1.3;
     margin-bottom: 0.5em;
+
+    @media (max-width: 768px) {
+      font-size: 1.75rem;
+    }
   }
 
   p, .body {
@@ -357,6 +445,7 @@ export const GlobalStyles = createGlobalStyle`
       .ant-card-head-title {
         font-family: var(--font-primary);
         font-weight: 500;
+        font-size: 1.5rem !important;
       }
     }
 
@@ -391,6 +480,58 @@ export const GlobalStyles = createGlobalStyle`
       
       .ant-tooltip-arrow {
         border-color: ${({ theme }) => theme.colors.border};
+      }
+    }
+  }
+
+  /* Обновляем стили для навигации */
+  .ant-menu-item {
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    
+    &:hover {
+      font-weight: 600 !important;
+    }
+    
+    &.ant-menu-item-selected {
+      font-weight: 600 !important;
+    }
+  }
+
+  /* Стили для логотипа в шапке */
+  .logo {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+  }
+
+  /* Общие стили для шапки */
+  .ant-layout-header {
+    .ant-menu {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      
+      .ant-menu-item {
+        padding: 0 1rem;
+        margin: 0;
+        height: 64px;
+        line-height: 64px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          color: ${({ theme }) => theme.colors.primary} !important;
+          background: transparent;
+        }
+        
+        &.ant-menu-item-selected {
+          color: ${({ theme }) => theme.colors.primary} !important;
+          background: transparent;
+          
+          &::after {
+            border-bottom: 2px solid ${({ theme }) => theme.colors.primary} !important;
+          }
+        }
       }
     }
   }
