@@ -27,7 +27,7 @@ const StyledContent = styled(Content)`
   width: 100%;
 `;
 
-function App() {
+const App: React.FC = () => {
   return (
     <ThemeProvider>
       <Router>
@@ -46,6 +46,6 @@ function App() {
       </Router>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

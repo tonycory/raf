@@ -30,10 +30,13 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_PROXY_API_KEY: ${{ secrets.VITE_PROXY_API_KEY }}
+          PUBLIC_URL: 'https://tonycory.github.io/raf'
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
           branch: gh-pages
-          clean: true 
+          clean: true
+          clean-exclude: |
+            .nojekyll 
