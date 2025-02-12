@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
@@ -30,7 +30,7 @@ const StyledContent = styled(Content)`
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <Router>
+      <HashRouter>
         <GlobalStyles />
         <StyledLayout>
           <Navigation />
@@ -43,7 +43,7 @@ const App: React.FC = () => {
             </Routes>
           </StyledContent>
         </StyledLayout>
-      </Router>
+      </HashRouter>
     </ThemeProvider>
   );
 };
